@@ -9,7 +9,8 @@ public class Client extends Thread{
 
 
     public static Semaphore pumps;
-    private int pump;
+    public static int pumpNumber = 0;
+    public int myPump = 0;
     public static int minSecond = 10;
     public static int maxSecond = 60;
 
@@ -32,9 +33,14 @@ public class Client extends Thread{
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        Main.print(this.name+" Arrive");
+        if(pumps.availablePermits() != 0){
+            Main.print(this.name+" Arrive");
+        }else {
+            Main.print(this.name+" Arrive and Waiting");
+        }
         try {
             pumps.acquire();
+            myPump = ++pumpNumber;
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -43,8 +49,8 @@ public class Client extends Thread{
 
     public void Occupied(){
         generateRandomTime();
-        this.pump = pumps.availablePermits()+1;
-        Main.print("Pump "+this.pump + ":" + this.name + " Occupied");
+
+        Main.print("Pump "+this.myPump + ":" + this.name + " Occupied");
         try {
             this.sleep(serviceSeconds *100);
         } catch (InterruptedException e) {
@@ -55,7 +61,7 @@ public class Client extends Thread{
 
     public void serve(){
         generateRandomTime();
-        Main.print("Pump "+this.pump + ":" + this.name + " being served");
+        Main.print("Pump "+this.myPump + ":" + this.name + " being served");
         try {
             this.sleep(serviceSeconds *100);
         } catch (InterruptedException e) {
@@ -66,7 +72,7 @@ public class Client extends Thread{
 
     public void paying(){
         generateRandomTime();
-        Main.print("Pump "+this.pump + ":" + this.name + " Paying");
+        Main.print("Pump "+this.myPump + ":" + this.name + " Paying");
         try {
             this.sleep(serviceSeconds *100);
         } catch (InterruptedException e) {
@@ -77,8 +83,8 @@ public class Client extends Thread{
 
     public void leave(){
         Main.print(this.name+" Leaving");
+        pumpNumber--;
         pumps.release();
-
     }
 
     @Override
